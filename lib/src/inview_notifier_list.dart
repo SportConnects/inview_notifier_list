@@ -1,63 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:inview_notifier_list/inview_notifier_list.dart';
+import 'package:inview_notifier_list/src/inherited_inview_widget.dart';
 import 'package:inview_notifier_list/src/inview_notifier.dart';
 
-import 'inherited_inview_widget.dart';
-import 'inview_state.dart';
-
-///builds a [ListView] and notifies when the widgets are on screen within a provided area.
+///The function that defines and returns the widget that should be notified
+///as inView.
 ///
-///The constructor takes an [IndexedWidgetBuilder] which builds the children on demand.
-///It's just like the [ListView.builder].
-class InViewNotifierList extends InViewNotifier {
-  InViewNotifierList({
-    Key? key,
-    int? itemCount,
-    required IndexedWidgetBuilder builder,
-    List<String> initialInViewIds = const [],
-    int contextCacheCount = 10,
-    double endNotificationOffset = 0.0,
-    VoidCallback? onListEndReached,
-    Duration throttleDuration = const Duration(milliseconds: 200),
-    Axis scrollDirection = Axis.vertical,
-    required IsInViewPortCondition isInViewPortCondition,
-    ScrollController? controller,
-    EdgeInsets? padding,
-    ScrollPhysics? physics,
-    bool reverse = false,
-    bool? primary,
-    bool shrinkWrap = false,
-    bool addAutomaticKeepAlives = true,
-  })  : assert(contextCacheCount >= 1),
-        assert(endNotificationOffset >= 0.0),
-        super(
-          key: key,
-          initialInViewIds: initialInViewIds,
-          endNotificationOffset: endNotificationOffset,
-          onListEndReached: onListEndReached,
-          throttleDuration: throttleDuration,
-          contextCacheCount: contextCacheCount,
-          isInViewPortCondition: isInViewPortCondition,
-          child: ListView.builder(
-            padding: padding,
-            controller: controller,
-            scrollDirection: scrollDirection,
-            physics: physics,
-            reverse: reverse,
-            primary: primary,
-            addAutomaticKeepAlives: addAutomaticKeepAlives,
-            shrinkWrap: shrinkWrap,
-            itemCount: itemCount,
-            itemBuilder: builder,
-          ),
-        );
-
-  static InViewState? of(BuildContext context) {
-    final InheritedInViewWidget widget = context
-        .getElementForInheritedWidgetOfExactType<InheritedInViewWidget>()!
-        .widget as InheritedInViewWidget;
-    return widget.inViewState;
-  }
-}
+///The `isInView` tells whether the returned widget is in view or not.
+///
+///The child should typically be part of the returned widget tree.
+typedef Widget InViewNotifierWidgetBuilder(
+  BuildContext context,
+  bool isInView,
+  Widget? child,
+);
 
 ///builds a [CustomScrollView] and notifies when the widgets are on screen within a provided area.
 ///
@@ -103,6 +59,62 @@ class InViewNotifierCustomScrollView extends InViewNotifier {
             shrinkWrap: shrinkWrap,
             center: center,
           ),
+        );
+
+  static InViewState? of(BuildContext context) {
+    final InheritedInViewWidget widget = context
+        .getElementForInheritedWidgetOfExactType<InheritedInViewWidget>()!
+        .widget as InheritedInViewWidget;
+    return widget.inViewState;
+  }
+}
+
+///builds a [ListView] and notifies when the widgets are on screen within a provided area.
+///
+///The constructor takes an [IndexedWidgetBuilder] which builds the children on demand.
+///It's just like the [ListView.builder].
+class InViewNotifierList extends InViewNotifier {
+  InViewNotifierList(
+      {Key? key,
+      int? itemCount,
+      required IndexedWidgetBuilder builder,
+      List<String> initialInViewIds = const [],
+      int contextCacheCount = 10,
+      double endNotificationOffset = 0.0,
+      VoidCallback? onListEndReached,
+      Duration throttleDuration = const Duration(milliseconds: 200),
+      Axis scrollDirection = Axis.vertical,
+      required IsInViewPortCondition isInViewPortCondition,
+      ScrollController? controller,
+      EdgeInsets? padding,
+      ScrollPhysics? physics,
+      bool reverse = false,
+      bool? primary,
+      bool shrinkWrap = false,
+      bool addAutomaticKeepAlives = true,
+      double? cacheExtent})
+      : assert(contextCacheCount >= 1),
+        assert(endNotificationOffset >= 0.0),
+        super(
+          key: key,
+          initialInViewIds: initialInViewIds,
+          endNotificationOffset: endNotificationOffset,
+          onListEndReached: onListEndReached,
+          throttleDuration: throttleDuration,
+          contextCacheCount: contextCacheCount,
+          isInViewPortCondition: isInViewPortCondition,
+          child: ListView.builder(
+              scrollDirection: scrollDirection,
+              reverse: reverse,
+              controller: controller,
+              primary: primary,
+              physics: physics,
+              shrinkWrap: shrinkWrap,
+              padding: padding,
+              itemBuilder: builder,
+              itemCount: itemCount,
+              addAutomaticKeepAlives: addAutomaticKeepAlives,
+              cacheExtent: cacheExtent),
         );
 
   static InViewState? of(BuildContext context) {
@@ -170,15 +182,3 @@ class InViewNotifierWidget extends StatelessWidget {
     );
   }
 }
-
-///The function that defines and returns the widget that should be notified
-///as inView.
-///
-///The `isInView` tells whether the returned widget is in view or not.
-///
-///The child should typically be part of the returned widget tree.
-typedef Widget InViewNotifierWidgetBuilder(
-  BuildContext context,
-  bool isInView,
-  Widget? child,
-);

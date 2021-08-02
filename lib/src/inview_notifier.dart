@@ -2,10 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:inview_notifier_list/inview_notifier_list.dart';
+import 'package:inview_notifier_list/src/inherited_inview_widget.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-import 'inherited_inview_widget.dart';
-import 'inview_state.dart';
+///The function that defines the area within which the widgets should be notified
+///as inView.
+typedef bool IsInViewPortCondition(
+  double deltaTop,
+  double deltaBottom,
+  double viewPortDimension,
+);
 
 ///builds a [ScrollView] and notifies when the widgets are on screen within a provided area.
 class InViewNotifier extends StatefulWidget {
@@ -62,48 +69,6 @@ class _InViewNotifierState extends State<InViewNotifier> {
   StreamController<ScrollNotification>? _streamController;
 
   @override
-  void initState() {
-    super.initState();
-    _initializeInViewState();
-    _startListening();
-  }
-
-  @override
-  void didUpdateWidget(InViewNotifier oldWidget) {
-    if (oldWidget.throttleDuration != widget.throttleDuration) {
-      //when throttle duration changes, close the existing stream controller if exists
-      //and start listening to a stream that is throttled by new duration.
-      _streamController?.close();
-      _startListening();
-    }
-
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    _inViewState?.dispose();
-    _inViewState = null;
-    _streamController?.close();
-    super.dispose();
-  }
-
-  void _startListening() {
-    _streamController = StreamController<ScrollNotification>();
-
-    _streamController!.stream
-        .audit(widget.throttleDuration)
-        .listen(_inViewState!.onScroll);
-  }
-
-  void _initializeInViewState() {
-    _inViewState = InViewState(
-      intialIds: widget.initialInViewIds,
-      isInViewCondition: widget.isInViewPortCondition,
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     return InheritedInViewWidget(
       inViewState: _inViewState,
@@ -151,17 +116,52 @@ class _InViewNotifierState extends State<InViewNotifier> {
           if (!_streamController!.isClosed && isScrollDirection) {
             _streamController!.add(notification);
           }
+
           return false;
         },
       ),
     );
   }
-}
 
-///The function that defines the area within which the widgets should be notified
-///as inView.
-typedef bool IsInViewPortCondition(
-  double deltaTop,
-  double deltaBottom,
-  double viewPortDimension,
-);
+  @override
+  void didUpdateWidget(InViewNotifier oldWidget) {
+    if (oldWidget.throttleDuration != widget.throttleDuration) {
+      //when throttle duration changes, close the existing stream controller if exists
+      //and start listening to a stream that is throttled by new duration.
+      _streamController?.close();
+      _startListening();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _inViewState?.dispose();
+    _inViewState = null;
+    _streamController?.close();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeInViewState();
+    _startListening();
+  }
+
+  void _initializeInViewState() {
+    _inViewState = InViewState(
+      intialIds: widget.initialInViewIds,
+      isInViewCondition: widget.isInViewPortCondition,
+    );
+  }
+
+  void _startListening() {
+    _streamController = StreamController<ScrollNotification>();
+
+    _streamController!.stream
+        .audit(widget.throttleDuration)
+        .listen(_inViewState!.onScroll);
+  }
+}

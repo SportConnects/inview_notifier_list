@@ -35,15 +35,6 @@ class InViewState extends ChangeNotifier {
     _contexts.add(WidgetData(context: context, id: id));
   }
 
-  ///Keeps the number of widget's contexts the InViewNotifier should stored/cached for
-  ///the calculations thats needed to be done to check if the widgets are inView or not.
-  ///Defaults to 10 and should be greater than 1. This is done to reduce the number of calculations being performed.
-  void removeContexts(int letRemain) {
-    if (_contexts.length > letRemain) {
-      _contexts = _contexts.skip(_contexts.length - letRemain).toSet();
-    }
-  }
-
   ///Checks if the widget with the `id` is currently in-view or not.
   bool inView(String id) {
     return _currentInViewIds.contains(id);
@@ -95,5 +86,14 @@ class InViewState extends ChangeNotifier {
         }
       }
     });
+  }
+
+  ///Keeps the number of widget's contexts the InViewNotifier should stored/cached for
+  ///the calculations thats needed to be done to check if the widgets are inView or not.
+  ///Defaults to 10 and should be greater than 1. This is done to reduce the number of calculations being performed.
+  void removeContexts(int letRemain) {
+    if (_contexts.length > letRemain) {
+      _contexts = _contexts.skip(_contexts.length - letRemain).toSet();
+    }
   }
 }
