@@ -9,11 +9,9 @@ import 'package:inview_notifier_list/src/inview_notifier.dart';
 ///The `isInView` tells whether the returned widget is in view or not.
 ///
 ///The child should typically be part of the returned widget tree.
-typedef Widget InViewNotifierWidgetBuilder(
-  BuildContext context,
-  bool isInView,
-  Widget? child,
-);
+typedef Widget InViewNotifierWidgetBuilder(BuildContext context,
+    bool isInView,
+    Widget? child,);
 
 ///builds a [CustomScrollView] and notifies when the widgets are on screen within a provided area.
 ///
@@ -40,26 +38,28 @@ class InViewNotifierCustomScrollView extends InViewNotifier {
     bool shrinkWrap = false,
     Key? center,
     double anchor = 0.0,
+    double? cacheExtent
   }) : super(
-          key: key,
-          initialInViewIds: initialInViewIds,
-          endNotificationOffset: endNotificationOffset,
-          onListEndReached: onListEndReached,
-          throttleDuration: throttleDuration,
-          contextCacheCount: contextCacheCount,
-          isInViewPortCondition: isInViewPortCondition,
-          child: CustomScrollView(
-            slivers: slivers,
-            anchor: anchor,
-            controller: controller,
-            scrollDirection: scrollDirection,
-            physics: physics,
-            reverse: reverse,
-            primary: primary,
-            shrinkWrap: shrinkWrap,
-            center: center,
-          ),
-        );
+    key: key,
+    initialInViewIds: initialInViewIds,
+    endNotificationOffset: endNotificationOffset,
+    onListEndReached: onListEndReached,
+    throttleDuration: throttleDuration,
+    contextCacheCount: contextCacheCount,
+    isInViewPortCondition: isInViewPortCondition,
+    child: CustomScrollView(
+        slivers: slivers,
+        anchor: anchor,
+        controller: controller,
+        scrollDirection: scrollDirection,
+        physics: physics,
+        reverse: reverse,
+        primary: primary,
+        shrinkWrap: shrinkWrap,
+        center: center,
+        cacheExtent: cacheExtent
+    ),
+  );
 
   static InViewState? of(BuildContext context) {
     final InheritedInViewWidget widget = context
@@ -74,48 +74,47 @@ class InViewNotifierCustomScrollView extends InViewNotifier {
 ///The constructor takes an [IndexedWidgetBuilder] which builds the children on demand.
 ///It's just like the [ListView.builder].
 class InViewNotifierList extends InViewNotifier {
-  InViewNotifierList(
-      {Key? key,
-      int? itemCount,
-      required IndexedWidgetBuilder builder,
-      List<String> initialInViewIds = const [],
-      int contextCacheCount = 10,
-      double endNotificationOffset = 0.0,
-      VoidCallback? onListEndReached,
-      Duration throttleDuration = const Duration(milliseconds: 200),
-      Axis scrollDirection = Axis.vertical,
-      required IsInViewPortCondition isInViewPortCondition,
-      ScrollController? controller,
-      EdgeInsets? padding,
-      ScrollPhysics? physics,
-      bool reverse = false,
-      bool? primary,
-      bool shrinkWrap = false,
-      bool addAutomaticKeepAlives = true,
-      double? cacheExtent})
+  InViewNotifierList({Key? key,
+    int? itemCount,
+    required IndexedWidgetBuilder builder,
+    List<String> initialInViewIds = const [],
+    int contextCacheCount = 10,
+    double endNotificationOffset = 0.0,
+    VoidCallback? onListEndReached,
+    Duration throttleDuration = const Duration(milliseconds: 200),
+    Axis scrollDirection = Axis.vertical,
+    required IsInViewPortCondition isInViewPortCondition,
+    ScrollController? controller,
+    EdgeInsets? padding,
+    ScrollPhysics? physics,
+    bool reverse = false,
+    bool? primary,
+    bool shrinkWrap = false,
+    bool addAutomaticKeepAlives = true,
+    double? cacheExtent})
       : assert(contextCacheCount >= 1),
         assert(endNotificationOffset >= 0.0),
         super(
-          key: key,
-          initialInViewIds: initialInViewIds,
-          endNotificationOffset: endNotificationOffset,
-          onListEndReached: onListEndReached,
-          throttleDuration: throttleDuration,
-          contextCacheCount: contextCacheCount,
-          isInViewPortCondition: isInViewPortCondition,
-          child: ListView.builder(
-              scrollDirection: scrollDirection,
-              reverse: reverse,
-              controller: controller,
-              primary: primary,
-              physics: physics,
-              shrinkWrap: shrinkWrap,
-              padding: padding,
-              itemBuilder: builder,
-              itemCount: itemCount,
-              addAutomaticKeepAlives: addAutomaticKeepAlives,
-              cacheExtent: cacheExtent),
-        );
+        key: key,
+        initialInViewIds: initialInViewIds,
+        endNotificationOffset: endNotificationOffset,
+        onListEndReached: onListEndReached,
+        throttleDuration: throttleDuration,
+        contextCacheCount: contextCacheCount,
+        isInViewPortCondition: isInViewPortCondition,
+        child: ListView.builder(
+            scrollDirection: scrollDirection,
+            reverse: reverse,
+            controller: controller,
+            primary: primary,
+            physics: physics,
+            shrinkWrap: shrinkWrap,
+            padding: padding,
+            itemBuilder: builder,
+            itemCount: itemCount,
+            addAutomaticKeepAlives: addAutomaticKeepAlives,
+            cacheExtent: cacheExtent),
+      );
 
   static InViewState? of(BuildContext context) {
     final InheritedInViewWidget widget = context
